@@ -1,5 +1,5 @@
 {
-    "name": "creocoder/yii2-flysystem",
+    "name": "maxodrom/yii2-flysystem",
     "description": "The flysystem extension for the Yii framework",
     "keywords": [
         "yii2",
@@ -23,6 +23,10 @@
         {
             "name": "Alexander Kochetov",
             "email": "creocoder@gmail.com"
+        },
+        {
+            "name": "Max Alexandrov",
+            "email": "max@7u3.ru"
         }
     ],
     "require": {
