@@ -47,25 +47,39 @@ class AwsS3Filesystem extends Filesystem
      */
     public $prefix;
     /**
+     * @var bool
+     */
+    public $pathStyleEndpoint = false;
+    /**
      * @var array
      */
     public $options = [];
     /**
+     * @var bool
+     */
+    public $streamReads = false;
+    /**
      * @var string
      */
     public $endpoint;
+    /**
+     * @var array|\Aws\CacheInterface|\Aws\Credentials\CredentialsInterface|bool|callable
+     */
+    public $credentials;
 
     /**
      * @inheritdoc
      */
     public function init()
     {
-        if ($this->key === null) {
-            throw new InvalidConfigException('The "key" property must be set.');
-        }
+        if ($this->credentials === null) {
+            if ($this->key === null) {
+                throw new InvalidConfigException('The "key" property must be set.');
+            }
 
-        if ($this->secret === null) {
-            throw new InvalidConfigException('The "secret" property must be set.');
+            if ($this->secret === null) {
+                throw new InvalidConfigException('The "secret" property must be set.');
+            }
         }
 
         if ($this->bucket === null) {
@@ -80,12 +94,18 @@ class AwsS3Filesystem extends Filesystem
      */
     protected function prepareAdapter()
     {
-        $config = [
-            'credentials' => [
-                'key' => $this->key,
-                'secret' => $this->secret
-            ]
-        ];
+        $config = [];
+
+        if ($this->credentials === null) {
+            $config['credentials'] = ['key' => $this->key, 'secret' => $this->secret];
+        } else {
+            $config['credentials'] = $this->credentials;
+        }
+
+
+        if ($this->pathStyleEndpoint === true) {
+            $config['use_path_style_endpoint'] = true;
+        }
 
         if ($this->region !== null) {
             $config['region'] = $this->region;
@@ -103,6 +123,6 @@ class AwsS3Filesystem extends Filesystem
 
         $client = new S3Client($config);
 
-        return new AwsS3Adapter($client, $this->bucket, $this->prefix, $this->options);
+        return new AwsS3Adapter($client, $this->bucket, $this->prefix, $this->options, $this->streamReads);
     }
 }
